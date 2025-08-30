@@ -26,16 +26,16 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
-// server/index.js
-
-// ... (imports and setup)
 
 // This is our endpoint for adding a new journal entry
 app.post('/add-entry', async (req, res) => {
   try {
     // Step 1: Get the text from the request that the user submitted.
     // The frontend will send this as { "text": "Some journal entry" }
-    const { text } = req.body;
+    const { text, userId } = req.body;
+    if (!text || !userId) {
+      return res.status(400).json({ error: 'Text and userId are required.' });
+    }
 
     // Step 2: Create a new instance of the sentiment analyzer.
     const sentiment = new Sentiment();
@@ -54,8 +54,8 @@ app.post('/add-entry', async (req, res) => {
     };
 
     // Step 5: Save the new document to our 'entries' collection in Firestore.
-    const docRef = await addDoc(collection(db, "entries"), newEntry);
-
+    const userEntriesCollection = collection(db, 'users', userId, 'entries');
+const docRef = await addDoc(userEntriesCollection, newEntry);
     // Step 6: Send a success response back to the frontend.
     res.status(201).json({ message: 'Entry added successfully!', id: docRef.id });
 
@@ -68,25 +68,25 @@ app.post('/add-entry', async (req, res) => {
 
 
 // 📖 GET /entries
-app.get('/entries', async (req, res) => {
+app.get('/entries/:userId', async (req, res) => {
   try {
-    // 1. Get a reference to the "entries" collection
-    const entriesCollection = collection(db, "entries");
-    // 2. Fetch all documents in that collection
-    const entrySnapshot = await getDocs(entriesCollection);
-    // 3. Create a new array to hold the entries
-    const entryList = [];
-    // 4. Loop through each document and add its data to our list
-    entrySnapshot.forEach(doc => {
-      entryList.push({ id: doc.id, ...doc.data() });
-    });
+    const userId = req.params.userId;
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required.' });
+    }
+    const userEntriesCollection = collection(db, 'users', userId, 'entries');
+    const q = query(userEntriesCollection);
+    const querySnapshot = await getDocs(q);
     
-    // 5. Send the list back as a JSON response
-    res.status(200).json(entryList);
-
-  } catch (error) {
-    console.error("Error getting documents: ", error);
-    res.status(500).json({ error: 'Failed to get entries' });
+    const entries = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    res.json(entries);
+  } catch (error)
+  {
+    console.error("Error fetching documents: ", error);
+    res.status(500).send('Error fetching entries');
   }
 });
 
