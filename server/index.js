@@ -68,8 +68,26 @@ app.post('/add-entry', async (req, res) => {
 
 
 // 📖 GET /entries
-app.get("/entries", (req, res) => {
-  res.json({ message: "This will return all journal entries soon." });
+app.get('/entries', async (req, res) => {
+  try {
+    // 1. Get a reference to the "entries" collection
+    const entriesCollection = collection(db, "entries");
+    // 2. Fetch all documents in that collection
+    const entrySnapshot = await getDocs(entriesCollection);
+    // 3. Create a new array to hold the entries
+    const entryList = [];
+    // 4. Loop through each document and add its data to our list
+    entrySnapshot.forEach(doc => {
+      entryList.push({ id: doc.id, ...doc.data() });
+    });
+    
+    // 5. Send the list back as a JSON response
+    res.status(200).json(entryList);
+
+  } catch (error) {
+    console.error("Error getting documents: ", error);
+    res.status(500).json({ error: 'Failed to get entries' });
+  }
 });
 
 // ✅ Start server
