@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import LoginPage from './components/LoginPage';
 import "./App.css";
+import "./components/firebase";
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+
 // COMPONENT: JournalForm
 function JournalForm({ onAddEntry }) {
   const [entryText, setEntryText] = useState('');
@@ -172,14 +177,43 @@ function EntryList({ entries }) {
 
 // MAIN APP COMPONENT
 function App() {
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, positive: 0, negative: 0, neutral: 0 });
 
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setAuthLoading(false);
+      if (user) {
+        // User is signed in, fetch their entries
+        fetchEntries();
+      } else {
+        // User is signed out, reset state
+        setEntries([]);
+        setStats({ total: 0, positive: 0, negative: 0, neutral: 0 });
+        setLoading(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
   // Function to fetch entries from backend
   const fetchEntries = async () => {
     try {
-      const response = await fetch('http://localhost:3001/entries');
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const idToken = await user.getIdToken();
+      const response = await fetch('http://localhost:3001/entries', {
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -193,9 +227,6 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    fetchEntries();
-  }, []);
 
   const calculateStats = (entriesData) => {
     const total = entriesData.length;
@@ -213,10 +244,17 @@ function App() {
 
   const handleAddEntry = async (entryText) => {
     try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const idToken = await user.getIdToken();
+
       const response = await fetch('http://localhost:3001/add-entry', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify({ text: entryText }),
       });
@@ -234,6 +272,29 @@ function App() {
     }
   };
 
+   const handleSignOut = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="App loading">
+        <div className="loading-spinner">
+          <div className="spinner-ring"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  if (!user) {
+    return <LoginPage />;
+  }
+
   if (loading) {
     return (
       <div className="App loading">
@@ -249,10 +310,19 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div className="header-content">
+           <div className="header-main">
           <h1>🌟 My Sentiment Journal</h1>
           <p>Track your thoughts, understand your emotions</p>
         </div>
         
+        <div className="user-info">
+            <span>Welcome, {user.displayName || user.email}!</span>
+            <button onClick={handleSignOut} className="sign-out-btn">
+              Sign Out
+            </button>
+        </div>
+      </div>
+
         <div className="stats-dashboard">
           <div className="stat-card">
             <div className="stat-number">{stats.total}</div>
@@ -271,7 +341,7 @@ function App() {
             <div className="stat-label">😐 Neutral</div>
           </div>
         </div>
-      </header>
+     </header>
       
       <main>
         <JournalForm onAddEntry={handleAddEntry} />
