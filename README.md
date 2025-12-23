@@ -4,19 +4,19 @@ Sentio is a full-stack wellness application that helps users track their emotion
 
 # 🚀 Features
 
-# AI Sentiment Analysis:
+ AI Sentiment Analysis:
 Uses Google Gemini 2.5 Flash to analyze journal entries.
 
-# Immediate Insights:
+ Immediate Insights:
 Get empathetic feedback and wellness suggestions instantly.
 
-# Secure Authentication: 
+ Secure Authentication: 
 Integrated with Firebase Google Auth.
 
-# Sentiment Tracking: 
+ Sentiment Tracking: 
 Visual stats dashboard tracking positive, negative, and neutral trends.
 
-# Cloud Storage: 
+ Cloud Storage: 
 Securely stores entries in Firestore.
 
 # 🛠️ Tech Stack
