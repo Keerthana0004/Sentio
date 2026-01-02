@@ -5,7 +5,9 @@ const admin = require('./firebase-admin'); // Import our admin setup
 const Sentiment = require('sentiment'); // Re-importing sentiment
 const { getAdvice } = require('./services/getAdvice');
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000'
+}));
 app.use(express.json());
 
 const db = admin.firestore();
