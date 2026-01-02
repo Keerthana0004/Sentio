@@ -2,9 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import LoginPage from './components/LoginPage';
 import "./App.css";
 import { auth } from  "./components/firebase";
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Insight from './components/Insight';
 
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 // COMPONENT: JournalForm
 function JournalForm({ onAddEntry , aiResult}) {
   const [entryText, setEntryText] = useState('');
@@ -221,7 +223,7 @@ function App() {
       if (!user) return;
 
       const idToken = await user.getIdToken();
-      const response = await fetch('http://localhost:3001/entries', {
+      const response = await fetch(`${API_URL}/entries`, {
         headers: {
           'Authorization': `Bearer ${idToken}`,
           'Content-Type': 'application/json',
