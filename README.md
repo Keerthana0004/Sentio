@@ -1,44 +1,92 @@
 # Sentio: AI-Powered Sentiment Journal 🌟
 
-Sentio is a full-stack wellness application that helps users track their emotional journey using AI-driven insights.
+Sentio is a full-stack wellness application that helps users track their emotional journey using AI-driven insights. It provides immediate empathetic feedback and wellness suggestions based on the tone of your journal entries.
 
-# 🚀 Features
+---
 
- AI Sentiment Analysis:
-Uses Google Gemini 2.5 Flash to analyze journal entries.
+## 🔗 Live Demo
 
- Immediate Insights:
-Get empathetic feedback and wellness suggestions instantly.
+[View Sentio Live](sentio-7gzif6ekw-keerthana0004s-projects.vercel.app)
 
- Secure Authentication: 
-Integrated with Firebase Google Auth.
+> **Note:** The initial load may take **30–60 seconds** as the backend on Render “wakes up” from its free-tier sleep.
 
- Sentiment Tracking: 
-Visual stats dashboard tracking positive, negative, and neutral trends.
+---
 
- Cloud Storage: 
-Securely stores entries in Firestore.
+## 🚀 Features
 
-# 🛠️ Tech Stack
+- **AI Sentiment Analysis:** Leverages Google Gemini 2.5 Flash to analyze the emotional depth and mood of every entry.  
+- **Immediate Insights:** Provides instant empathetic responses and actionable wellness tips right after saving.  
+- **Secure Authentication:** Robust user isolation via Firebase (Google Auth & Anonymous sign-in).  
+- **Sentiment Tracking:** A dashboard featuring real-time statistics for Positive, Negative, and Neutral mood trends.  
+- **Cloud Storage:** High-performance data persistence using Firebase Firestore.  
+- **Mobile Optimized:** Fully responsive UI designed for journaling on the go.  
 
-Frontend: React.js, CSS3 (Flexbox/Grid), Lucide Icons
+---
 
-Backend: Node.js, Express.js
+## 🛠️ Tech Stack
 
-AI: Google Gemini API
+**Frontend:** React.js, Tailwind CSS, Lucide Icons  
+**Backend:** Node.js, Express.js  
+**AI Integration:** Google Gemini API  
+**Database & Auth:** Firebase Firestore & Firebase Authentication  
 
-Database/Auth: Firebase (Firestore & Authentication)
+---
 
-# 📦 Setup Instructions
+## 📦 Local Setup Instructions
 
-Clone the repository.
+### 1. Clone the repository
 
-Run npm install in both the client and server directories.
+```bash
+git clone https://github.com/YOUR_USERNAME/Sentio.git
+cd Sentio
+```
+### 2. Install Dependencies
 
-Create a .env file in the /server directory with your GEMINI_API_KEY.
+Run the following in both the /client and /server directories:
 
-Add your serviceAccountKey.json for Firebase Admin.
+```bash
+npm install
+```
+### 3. Environment Variables
+In /server, create a .env file:
+```bash
+GEMINI_API_KEY=your_key_here
+PORT=3001
+```
+In /client, create a .env file with your Firebase config (all keys must start with REACT_APP_).
+### 4. Firebase Admin
 
-Run npm start in both directories.
+Place your serviceAccountKey.json inside the /server directory.
 
-Note: This repository was refactored for security to ensure all API credentials and dependencies are properly managed via .gitignore.
+### 5. Run Locally
+
+Start backend:
+
+```bash
+node index.js
+```
+Start frontend:
+```bash
+npm start
+```
+
+# 🌐 Deployment Information
+# Backend (Render)
+
+Host: Render.com
+
+Config: Dynamic PORT, GEMINI_API_KEY, and Firebase Admin env variables.
+
+Performance: Uses cors to securely communicate with the Vercel frontend.
+
+# Frontend (Vercel)
+
+Host: Vercel.com
+
+Config: REACT_APP_API_URL pointing to the Render backend.
+
+Optimizations: Automatic production builds + global CDN delivery.
+
+# 🔒 Security Note
+
+This repository was refactored to ensure all API credentials, Firebase configs, and sensitive files are securely managed using .gitignore.
